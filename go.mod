@@ -7,4 +7,4 @@ require (
 	github.com/jknutson/one-wire-temp-go v0.0.0-00010101000000-000000000000
 )
 
-replace github.com/jknutson/one-wire-temp-go => /Users/john.knutson/go/src/github.com/jknutson/one-wire-temp-go
+replace github.com/jknutson/one-wire-temp-go => ./
