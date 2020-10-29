@@ -1,0 +1,22 @@
+
+---
+extends: 'default'
+
+rules:
+  comments:
+    level: 'error'
+  comments-indentation:
+    level: 'error'
+  document-start:
+    level: 'error'
+  line-length:
+    max: 400
+    level: 'error'
+  quoted-strings:
+    level: 'error'
+  truthy:
+    check-keys: False
+    allowed-values:
+      - 'False'
+      - 'True'
+    level: 'error'

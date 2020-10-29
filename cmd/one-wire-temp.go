@@ -3,8 +3,8 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
-	"github.com/DataDog/datadog-go/statsd"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,12 +14,6 @@ import (
 	"strconv"
 	"time"
 )
-
-func check(e error) {
-	if e != nil {
-		log.Fatal(e)
-	}
-}
 
 type metricSeries struct {
 	MetricName string     `json:"metric"`
@@ -32,20 +26,48 @@ type metricData struct {
 	Series []metricSeries `json:"series"`
 }
 
+var (
+	buildVersion string
+	version      bool
+	count        int
+)
+
+func check(e error) {
+	if e != nil {
+		log.Fatal(e)
+	}
+}
+
+func usage() {
+	println(`Usage: one-wire-temp [options]
+Read temperature from one-wire sensores and POST to DataDog
+Options:`)
+	flag.PrintDefaults()
+	println(`For more information, see https://github.com/jwilder/docker-gen`)
+}
+
+func initFlags() {
+	flag.BoolVar(&version, "version", false, "show version")
+	flag.IntVar(&count, "count", -1, "count of times to poll/report, '-1' means continous")
+
+	flag.Usage = usage
+	flag.Parse()
+}
 func main() {
+	initFlags()
+
+	if version {
+		log.Println(buildVersion)
+		return
+	}
+
 	datadogAPIKey := os.Getenv("DD_API_KEY")
 	datadogAPIUrl := fmt.Sprintf("https://api.datadoghq.com/api/v1/series?api_key=%s", datadogAPIKey)
-	statsdHost := "127.0.0.1:8125"
-	if os.Getenv("STATSTD_HOST") != "" {
-		statsdHost = os.Getenv("STATSTD_HOST")
-	}
+
 	devicesDir := "/sys/bus/w1/devices/"
 	if os.Getenv("DEVICES_DIR") != "" {
 		devicesDir = os.Getenv("DEVICES_DIR")
 	}
-
-	statsd, err := statsd.New(statsdHost)
-	check(err)
 
 	var devices []string
 
@@ -56,6 +78,7 @@ func main() {
 
 	for _, f := range files {
 		matched := deviceRegexp.MatchString(f.Name())
+		// TODO: make this support symlinks?
 		if f.IsDir() && matched {
 			devices = append(devices, f.Name())
 		}
@@ -70,48 +93,55 @@ func main() {
 		check(err)
 	}
 
+	pollCount := 0
 	for {
 		for _, device := range devices {
 			deviceFile := path.Join(devicesDir, device, "w1_slave")
 			dat, err := ioutil.ReadFile(deviceFile)
 			check(err)
-			// log.Printf("device: %s\ncontents:\n%s\n", device, string(dat))
 			temperatureCelciusMatch := temperatureRegexp.FindSubmatch(dat)
-			// log.Printf("%q", temperatureCelciusMatch)
 			if temperatureCelciusMatch == nil {
 				log.Fatalf("could not parse temperature from file: %s\ncontents: %s", deviceFile, string(dat))
 			}
 			temperatureCelcius, err := strconv.ParseFloat(string(temperatureCelciusMatch[1]), 32)
-			temperatureCelcius = temperatureCelcius / 1000
 			check(err)
-
+			temperatureCelcius = temperatureCelcius / 1000
 			log.Printf("device: %s, temperature (celcius): %f", device, temperatureCelcius)
+
 			tags := []string{fmt.Sprintf("device:%s", device)}
 
-			// statsd
-			_ = statsd.Gauge("w1_temperature.celcius.gauge", temperatureCelcius, tags, 1)
-			// http
 			metricPoints := []string{fmt.Sprintf("%v", time.Now().Unix()), fmt.Sprintf("%f", temperatureCelcius)}
-			fmt.Println(time.Now().Unix())
 
 			var series []metricSeries
 			series = append(series, metricSeries{MetricName: "w1_temperature.celcius.gauge", Points: [][]string{metricPoints}, Tags: tags, MetricType: "gauge"})
-			//  jsonSeries, err := json.Marshal(series)
+
 			payload := metricData{Series: series}
 			jsonPayload, err := json.Marshal(payload)
 			check(err)
-			log.Printf("JSON payload: %s\n", jsonPayload)
-			check(err)
+			// log.Printf("JSON payload: %s\n", jsonPayload)
 			req, err := http.NewRequest("POST", datadogAPIUrl, bytes.NewBuffer(jsonPayload))
 			check(err)
 			req.Header.Set("Content-Type", "application/json")
 			client := &http.Client{}
-			resp, err := client.Do(req)
+			// TODO: make this configurable
+			client.Timeout = time.Second * 5
+			_, err = client.Do(req)
 			check(err)
-			defer resp.Body.Close()
-			log.Println("response Status:", resp.Status)
-			body, _ := ioutil.ReadAll(resp.Body)
-			log.Println("response Body:", string(body))
+			// resp, err := client.Do(req)
+			// TODO: should we `defer`?
+			// defer resp.Body.Close()
+			/*
+				log.Println("response Status:", resp.Status)
+				body, _ := ioutil.ReadAll(resp.Body)
+				log.Println("response Body:", string(body))
+			*/
+		}
+		if count != -1 {
+			pollCount = pollCount + 1
+			if pollCount >= count {
+				log.Printf("exiting after %v polls", pollCount)
+				os.Exit(0)
+			}
 		}
 		time.Sleep(time.Duration(pollInterval) * time.Second)
 	}

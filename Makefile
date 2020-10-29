@@ -16,7 +16,7 @@ BINARY_NAME=$(PROJECT)
 
 all: test build
 build:
-	$(GOBUILD) -ldflags $(GOFLAGS) -o "$(BINARY_NAME)" -v
+	$(GOBUILD) -ldflags $(GOFLAGS) -o "$(BINARY_NAME)" -v "cmd/$(PROJECT).go"
 test:
 	$(GOTEST) -v ./...
 clean:
@@ -27,11 +27,14 @@ run:
 	./$(BINARY_NAME)
 # deps:
 # 	GO111MODULE=on $(GOGET) github.com/docker/docker/client@master
+build-all: build-linux build-arm build-darwin
 
 # Cross compilation
 build-linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o "$(BINARY_NAME)" -v
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o "$(BINARY_NAME)_linux" -v "cmd/$(PROJECT).go"
 build-arm:
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm $(GOBUILD) -o "$(BINARY_NAME)_arm" -v
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm $(GOBUILD) -o "$(BINARY_NAME)_arm" -v "cmd/$(PROJECT).go"
+build-darwin:
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GOBUILD) -o "$(BINARY_NAME)_darwin" -v "cmd/$(PROJECT).go"
 docker-build:
-	docker run --rm -it -v "$(GOPATH)":/go -w "/go/src/github.com/novu/$(PROJECT)" golang:$(GOVERSION) $(GOBUILD) -o "$(BINARY_NAME)" -v
+	docker run --rm -it -v "$(GOPATH)":/go -w "/go/src/github.com/novu/$(PROJECT)" golang:$(GOVERSION) $(GOBUILD) -o "$(BINARY_NAME)" -v "cmd/$(PROJECT).go"

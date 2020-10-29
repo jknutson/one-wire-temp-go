@@ -1,0 +1,57 @@
+on:
+  push:
+    tags:
+      - 'v*'
+
+    name: 'create tagged release'
+
+jobs:
+  build:
+    name: 'create release'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'checkout code'
+        uses: 'actions/checkout@v2'
+      - name: 'build'
+        run: "make build-all"
+      - name: 'create release'
+        id: 'create_release'
+        uses: 'actions/create-release@v1'
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          tag_name: "${{ github.ref }}"
+          release_name: "Release ${{ github.ref }}"
+          draft: false
+          prerelease: false
+      - name: 'upload arm release asset'
+        id: 'upload-arm-release-asset'
+        uses: 'actions/upload-release-asset@v1'
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          upload_url: "${{ steps.create_release.outputs.upload_url }}"
+          asset_path: './one-wire-temp_arm'
+          asset_name: 'one-wire-temp_arm'
+          asset_content_type: 'application/octet-stream'
+      - name: 'upload darwin release asset'
+        id: 'upload-darwin-release-asset'
+        uses: 'actions/upload-release-asset@v1'
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          upload_url: "${{ steps.create_release.outputs.upload_url }}"
+          asset_path: './one-wire-temp_darwin'
+          asset_name: 'one-wire-temp_darwin'
+          asset_content_type: 'application/octet-stream'
+      - name: 'upload linux release asset'
+        id: 'upload-linux-release-asset'
+        uses: 'actions/upload-release-asset@v1'
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          upload_url: "${{ steps.create_release.outputs.upload_url }}"
+          asset_path: './one-wire-temp_linux'
+          asset_name: 'one-wire-temp_linux'
+          asset_content_type: 'application/octet-stream'
+
