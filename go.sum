@@ -1,2 +1,3 @@
 github.com/DataDog/datadog-go v4.1.0+incompatible h1:ZldqYrFXm0f3Doshbqv2gm/reXSocAhGbvODEb94Jvo=
 github.com/DataDog/datadog-go v4.1.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
+github.com/jknutson/one-wire-temp-go v0.0.1 h1:HwSzz7oO0mpaErVzsCco+QJ6Nbx1GNj8kCoMyOqYOo8=
