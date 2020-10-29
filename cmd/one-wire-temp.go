@@ -26,7 +26,7 @@ Options:`)
 Environment Variables:
   DD_API_KEY - DataDog API Key (required)
   DEVICES_DIR - directory path containing one wire device directories
-	POLL_INTERVAL - interval (in seconds) at which to poll for temperature
+  POLL_INTERVAL - interval (in seconds) at which to poll for temperature
 `)
 	println(`For more information, see https://github.com/jknutson/one-wire-temp-go`)
 }
@@ -81,36 +81,6 @@ func main() {
 			check(err)
 			err = onewire.PostMetric(datadogAPIUrl, metricPayload)
 			check(err)
-
-			/*
-				// build metric payload
-				tags := []string{fmt.Sprintf("device:%s", device)}
-				metricPoints := []string{fmt.Sprintf("%v", time.Now().Unix()), fmt.Sprintf("%f", temperatureCelcius)}
-				var series []metricSeries
-				series = append(series, metricSeries{MetricName: "w1_temperature.celcius.gauge", Points: [][]string{metricPoints}, Tags: tags, MetricType: "gauge"})
-				payload := metricData{Series: series}
-				jsonPayload, err := json.Marshal(payload)
-				check(err)
-				// log.Printf("JSON payload: %s\n", jsonPayload)
-
-				// make http request
-				req, err := http.NewRequest("POST", datadogAPIUrl, bytes.NewBuffer(jsonPayload))
-				check(err)
-				req.Header.Set("Content-Type", "application/json")
-				client := &http.Client{}
-				// TODO: make this configurable
-				client.Timeout = time.Second * 5
-				resp, err := client.Do(req)
-				check(err)
-				if resp.StatusCode != 202 {
-					body, _ := ioutil.ReadAll(resp.Body)
-					log.Printf("problem submitting metric to DataDog: %s", string(body))
-				}
-				resp.Body.Close()
-				log.Println("response Status:", resp.Status)
-				body, _ := ioutil.ReadAll(resp.Body)
-				log.Println("response Body:", string(body))
-			*/
 		}
 		if count != -1 {
 			pollCount = pollCount + 1
