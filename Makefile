@@ -16,7 +16,7 @@ BINARY_NAME=$(PROJECT)
 
 all: test build
 build:
-	$(GOBUILD) -ldflags $(GOFLAGS) -o "$(BINARY_NAME)" -v
+	$(GOBUILD) -ldflags $(GOFLAGS) -o "$(BINARY_NAME)" -v "cmd/$(PROJECT).go"
 test:
 	$(GOTEST) -v ./...
 clean:
