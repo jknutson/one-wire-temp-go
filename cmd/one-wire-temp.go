@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/DataDog/datadog-go/statsd"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -35,17 +34,11 @@ type metricData struct {
 func main() {
 	datadogAPIKey := os.Getenv("DD_API_KEY")
 	datadogAPIUrl := fmt.Sprintf("https://api.datadoghq.com/api/v1/series?api_key=%s", datadogAPIKey)
-	statsdHost := "127.0.0.1:8125"
-	if os.Getenv("STATSTD_HOST") != "" {
-		statsdHost = os.Getenv("STATSTD_HOST")
-	}
+
 	devicesDir := "/sys/bus/w1/devices/"
 	if os.Getenv("DEVICES_DIR") != "" {
 		devicesDir = os.Getenv("DEVICES_DIR")
 	}
-
-	statsd, err := statsd.New(statsdHost)
-	check(err)
 
 	var devices []string
 
@@ -88,8 +81,6 @@ func main() {
 			log.Printf("device: %s, temperature (celcius): %f", device, temperatureCelcius)
 			tags := []string{fmt.Sprintf("device:%s", device)}
 
-			// statsd
-			_ = statsd.Gauge("w1_temperature.celcius.gauge", temperatureCelcius, tags, 1)
 			// http
 			metricPoints := []string{fmt.Sprintf("%v", time.Now().Unix()), fmt.Sprintf("%f", temperatureCelcius)}
 			fmt.Println(time.Now().Unix())
@@ -106,9 +97,10 @@ func main() {
 			check(err)
 			req.Header.Set("Content-Type", "application/json")
 			client := &http.Client{}
+			client.Timeout = time.Second * 5
 			resp, err := client.Do(req)
 			check(err)
-			defer resp.Body.Close()
+			// defer resp.Body.Close()
 			log.Println("response Status:", resp.Status)
 			body, _ := ioutil.ReadAll(resp.Body)
 			log.Println("response Body:", string(body))
