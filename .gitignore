@@ -21,4 +21,4 @@ pi-temp-go*
 # vendor/
 
 datadog-agent.sh
-one-wire-temp*
+one-wire-temp
