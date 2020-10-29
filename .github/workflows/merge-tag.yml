@@ -1,4 +1,4 @@
-name: 'bump & tag version'
+name: 'merge-tag'
 on:
   push:
     branches:
