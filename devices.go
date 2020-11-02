@@ -3,7 +3,6 @@ package onewire
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"regexp"
 	"strconv"
 )
@@ -26,7 +25,6 @@ func GetDevices(devicesDir string) ([]string, error) {
 			devices = append(devices, f.Name())
 		}
 	}
-	log.Printf("devices found: %q", devices)
 	return devices, nil
 }
 
