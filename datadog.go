@@ -47,6 +47,9 @@ func PostMetric(url string, payload []byte) error {
 	// TODO: make this configurable
 	client.Timeout = time.Second * 5
 	resp, err := client.Do(req)
+	// TODO: handle errors/retry
+	// context deadline exceeded
+	// dial tcp: lookup api.datadoghq.com on 8.8.4.4:53: dial udp 8.8.4.4:53: connect: network is unreachable
 	if err != nil {
 		return err
 	}

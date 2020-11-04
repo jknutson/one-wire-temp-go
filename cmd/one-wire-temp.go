@@ -6,8 +6,10 @@ import (
 	"github.com/jknutson/one-wire-temp-go"
 	"log"
 	"os"
+	"os/signal"
 	"path"
 	"strconv"
+	"syscall"
 	"time"
 )
 
@@ -47,8 +49,19 @@ func check(e error) {
 	}
 }
 
+func setupCloseHandler() {
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		log.Println("Ctrl+C pressed, exiting.")
+		os.Exit(0)
+	}()
+}
+
 func main() {
 	initFlags()
+	setupCloseHandler()
 
 	if version {
 		log.Println(buildVersion)
@@ -87,6 +100,9 @@ func main() {
 
 			metricPayload, err := onewire.BuildMetric(device, temperatureCelcius)
 			check(err)
+			if verbose {
+				log.Printf("payload: %s", metricPayload)
+			}
 			err = onewire.PostMetric(datadogAPIUrl, metricPayload)
 			check(err)
 		}
