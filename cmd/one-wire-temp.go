@@ -104,7 +104,9 @@ func main() {
 				log.Printf("payload: %s", metricPayload)
 			}
 			err = onewire.PostMetric(datadogAPIUrl, metricPayload)
-			check(err)
+			if err != nil {
+				log.Printf("error posting metric: %v", err)
+			}
 		}
 		if count != -1 {
 			pollCount = pollCount + 1
