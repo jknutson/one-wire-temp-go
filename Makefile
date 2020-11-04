@@ -11,7 +11,7 @@ GOVERSION=1.15
 GOFLAGS="-X main.buildVersion=$(PROJECT_VERSION)"
 BINARY_NAME=$(PROJECT)
 
-all: test build-linux build-arm build-darwin
+build-all: test build-linux build-arm build-darwin
 test:
 	$(GOTEST) -v ./...
 clean:
