@@ -11,7 +11,7 @@ GOVERSION=1.15
 GOFLAGS="-X main.buildVersion=$(PROJECT_VERSION)"
 BINARY_NAME=$(PROJECT)
 
-build-all: test build-linux build-arm build-darwin
+build-all: test build-linux build-arm build-darwin build-raspi
 test:
 	$(GOTEST) -v ./...
 clean:
@@ -26,6 +26,8 @@ build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o "$(BINARY_NAME)_linux" -v "cmd/$(PROJECT).go"
 build-arm:
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm $(GOBUILD) -o "$(BINARY_NAME)_arm" -v "cmd/$(PROJECT).go"
+build-raspi:
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=5 $(GOBUILD) -o "$(BINARY_NAME)_raspi" -v "cmd/$(PROJECT).go"
 build-darwin:
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GOBUILD) -o "$(BINARY_NAME)_darwin" -v "cmd/$(PROJECT).go"
 docker-build:
