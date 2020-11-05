@@ -35,6 +35,16 @@ jobs:
           asset_path: './one-wire-temp_arm'
           asset_name: 'one-wire-temp_arm'
           asset_content_type: 'application/octet-stream'
+      - name: 'upload raspi release asset'
+        id: 'upload-raspi-release-asset'
+        uses: 'actions/upload-release-asset@v1'
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          upload_url: "${{ steps.create_release.outputs.upload_url }}"
+          asset_path: './one-wire-temp_raspi'
+          asset_name: 'one-wire-temp_raspi'
+          asset_content_type: 'application/octet-stream'
       - name: 'upload darwin release asset'
         id: 'upload-darwin-release-asset'
         uses: 'actions/upload-release-asset@v1'
