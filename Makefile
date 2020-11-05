@@ -1,6 +1,3 @@
-# build:
-# 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X main.buildVersion=novu" -o health_check ./health_check.go
-
 # Makefile template borrowed from https://sohlich.github.io/post/go_makefile/
 PROJECT=one-wire-temp
 PROJECT_VERSION=`cat VERSION.txt`
@@ -14,20 +11,15 @@ GOVERSION=1.15
 GOFLAGS="-X main.buildVersion=$(PROJECT_VERSION)"
 BINARY_NAME=$(PROJECT)
 
-all: test build
-build:
-	$(GOBUILD) -ldflags $(GOFLAGS) -o "$(BINARY_NAME)" -v "cmd/$(PROJECT).go"
+build-all: test build-linux build-arm build-darwin
 test:
 	$(GOTEST) -v ./...
 clean:
 	$(GOCLEAN)
 	rm -f $(BINARY_NAME)
-run:
-	$(GOBUILD) -o $(BINARY_NAME) -v ./...
-	./$(BINARY_NAME)
-# deps:
-# 	GO111MODULE=on $(GOGET) github.com/docker/docker/client@master
-build-all: build-linux build-arm build-darwin
+deps:
+	# TODO: check for GO111MODULE
+	GO111MODULE=on $(GOGET) github.com/docker/docker/client@master
 
 # Cross compilation
 build-linux:

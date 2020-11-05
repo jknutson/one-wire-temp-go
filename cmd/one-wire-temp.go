@@ -6,15 +6,18 @@ import (
 	"github.com/jknutson/one-wire-temp-go"
 	"log"
 	"os"
+	"os/signal"
 	"path"
 	"strconv"
+	"syscall"
 	"time"
 )
 
 var (
 	buildVersion string
-	version      bool
 	count        int
+	verbose      bool
+	version      bool
 )
 
 func usage() {
@@ -32,6 +35,7 @@ Environment Variables:
 }
 
 func initFlags() {
+	flag.BoolVar(&verbose, "verbose", false, "verbose output")
 	flag.BoolVar(&version, "version", false, "show version")
 	flag.IntVar(&count, "count", -1, "count of times to poll/report, '-1' means continous")
 
@@ -45,8 +49,19 @@ func check(e error) {
 	}
 }
 
+func setupCloseHandler() {
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		log.Println("Ctrl+C pressed, exiting.")
+		os.Exit(0)
+	}()
+}
+
 func main() {
 	initFlags()
+	setupCloseHandler()
 
 	if version {
 		log.Println(buildVersion)
@@ -69,18 +84,29 @@ func main() {
 		check(err)
 	}
 
+	log.Println("devices dir: ", devicesDir)
+	log.Println("poll interval: ", pollInterval)
+	log.Println("devices found: ", devices)
+
 	pollCount := 0
 	for {
 		for _, device := range devices {
 			deviceFile := path.Join(devicesDir, device, "w1_slave")
 			temperatureCelcius, err := onewire.ReadDevice(deviceFile)
 			check(err)
-			log.Printf("device: %s, temperature (celcius): %f", device, temperatureCelcius)
+			if verbose {
+				log.Printf("device: %s, temperature (celcius): %f", device, temperatureCelcius)
+			}
 
 			metricPayload, err := onewire.BuildMetric(device, temperatureCelcius)
 			check(err)
+			if verbose {
+				log.Printf("payload: %s", metricPayload)
+			}
 			err = onewire.PostMetric(datadogAPIUrl, metricPayload)
-			check(err)
+			if err != nil {
+				log.Printf("error posting metric: %v", err)
+			}
 		}
 		if count != -1 {
 			pollCount = pollCount + 1
