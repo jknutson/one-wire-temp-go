@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/jknutson/one-wire-temp-go"
 	"log"
 	"os"
@@ -63,13 +64,29 @@ func main() {
 	initFlags()
 	setupCloseHandler()
 
+	// mqtt setup
+	// TODO: get this from env
+	mqHostname, ok := os.LookupEnv("HOSTNAME")
+	if !ok {
+		mqHostname = "raspberrypi" // default if HOSTNAME env var is not set
+	}
+	mqBroker, ok := os.LookupEnv("MQ_BROKER")
+	if !ok {
+		mqBroker = "tcp://192.168.2.6:1883"
+	}
+	mqOpts := MQTT.NewClientOptions().AddBroker(mqBroker)
+	mqOpts.SetClientID(mqHostname)
+	mqTopicBase := fmt.Sprintf("pi/%s/temperature", mqHostname)
+
 	if version {
 		log.Println(buildVersion)
 		return
 	}
 
-	datadogAPIKey := os.Getenv("DD_API_KEY")
-	datadogAPIUrl := fmt.Sprintf("https://api.datadoghq.com/api/v1/series?api_key=%s", datadogAPIKey)
+	c := MQTT.NewClient(mqOpts)
+	if token := c.Connect(); token.Wait() && token.Error() != nil {
+		panic(token.Error())
+	}
 
 	devicesDir := "/sys/devices/w1_bus_master1/"
 	if os.Getenv("DEVICES_DIR") != "" {
@@ -97,16 +114,9 @@ func main() {
 			if verbose {
 				log.Printf("device: %s, temperature (celcius): %f", device, temperatureCelcius)
 			}
-
-			metricPayload, err := onewire.BuildMetric(device, temperatureCelcius)
-			check(err)
-			if verbose {
-				log.Printf("payload: %s", metricPayload)
-			}
-			err = onewire.PostMetric(datadogAPIUrl, metricPayload)
-			if err != nil {
-				log.Printf("error posting metric: %v", err)
-			}
+			temperatureFahrenheit := (temperatureCelcius * 1.8) + 32
+			token := c.Publish(fmt.Sprintf("%s/%s", mqTopicBase, device), 0, false, temperatureFahrenheit)
+			token.Wait()
 		}
 		if count != -1 {
 			pollCount = pollCount + 1
