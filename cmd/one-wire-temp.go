@@ -28,7 +28,6 @@ Options:`)
 	flag.PrintDefaults()
 	println(`
 Environment Variables:
-  DD_API_KEY - DataDog API Key (required)
   DEVICES_DIR - directory path containing one wire device directories
   POLL_INTERVAL - interval (in seconds) at which to poll for temperature
 `)
@@ -76,7 +75,7 @@ func main() {
 	}
 	mqOpts := MQTT.NewClientOptions().AddBroker(mqBroker)
 	mqOpts.SetClientID(mqHostname)
-	mqTopicBase := fmt.Sprintf("pi/%s/temperature", mqHostname)
+	mqTopicBase := fmt.Sprintf("raspberrypi/%s", mqHostname)
 
 	if version {
 		log.Println(buildVersion)
@@ -110,13 +109,23 @@ func main() {
 		for _, device := range devices {
 			deviceFile := path.Join(devicesDir, device, "w1_slave")
 			temperatureCelcius, err := onewire.ReadDevice(deviceFile)
-			check(err)
-			if verbose {
-				log.Printf("device: %s, temperature (celcius): %f", device, temperatureCelcius)
+			if err != nil {
+				// TODO: more robust "error" handling when file read is blank
+				if verbose {
+					log.Printf("ReadDevice error: %s\n", err)
+				}
+				continue
 			}
-			temperatureFahrenheit := (temperatureCelcius * 1.8) + 32
-			token := c.Publish(fmt.Sprintf("%s/%s", mqTopicBase, device), 0, false, temperatureFahrenheit)
+
+			temperatureFahrenheit := fmt.Sprintf("%f", (temperatureCelcius*1.8)+32)
+			if verbose {
+				log.Printf("%s-%s/temperature %s", mqTopicBase, device, temperatureFahrenheit)
+			}
+			token := c.Publish(fmt.Sprintf("%s-%s/temperature", mqTopicBase, device), 0, false, temperatureFahrenheit)
 			token.Wait()
+			if token.Error() != nil {
+				log.Printf("mq publish error: %s\n", token.Error())
+			}
 		}
 		if count != -1 {
 			pollCount = pollCount + 1
