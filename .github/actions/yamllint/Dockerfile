@@ -7,3 +7,5 @@ RUN pip install yamllint && \
       chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["."]
