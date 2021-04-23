@@ -1,4 +1,3 @@
-
 ---
 extends: 'default'
 
@@ -19,4 +18,6 @@ rules:
     allowed-values:
       - 'False'
       - 'True'
+      - 'false'
+      - 'true'
     level: 'error'

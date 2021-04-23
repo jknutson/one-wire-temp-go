@@ -1,3 +1,4 @@
+---
 name: 'tag-release'
 on:
   push:
@@ -65,4 +66,3 @@ jobs:
           asset_path: './one-wire-temp_linux'
           asset_name: 'one-wire-temp_linux'
           asset_content_type: 'application/octet-stream'
-

@@ -1,0 +1,21 @@
+{
+    "problemMatcher": [
+        {
+            "owner": "yamlint",
+            "pattern": [
+                {
+                    "regexp": "^(.+)$",
+                    "file": 1
+                },
+                {
+                    "regexp": "^\\s\\s(\\d+)\\:(\\d+)\\s+(\\S+)\\s+(.+)$",
+                    "line": 1,
+                    "column": 2,
+                    "severity": 3,
+                    "message": 4,
+                    "loop": true
+                }
+            ]
+        }
+    ]
+}

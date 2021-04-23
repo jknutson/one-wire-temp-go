@@ -1,3 +1,4 @@
+---
 name: 'merge-tag'
 on:
   push:
