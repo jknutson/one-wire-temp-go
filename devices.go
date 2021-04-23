@@ -35,7 +35,7 @@ func ReadDevice(deviceFile string) (float64, error) {
 		return 0, err
 	}
 
-	temperatureRegexp := regexp.MustCompile(`(?s)^.*t\=(\d+)\n$`)
+	temperatureRegexp := regexp.MustCompile(`(?s)^.*t\=(\d+)`)
 	temperatureCelciusMatch := temperatureRegexp.FindSubmatch(dat)
 	if temperatureCelciusMatch == nil {
 		return 0, fmt.Errorf("could not parse temperature from file: %s\ncontents: %s", deviceFile, string(dat))

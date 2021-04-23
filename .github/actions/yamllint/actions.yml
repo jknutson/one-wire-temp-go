@@ -1,0 +1,6 @@
+---
+name: 'yamllint-action'
+description: 'GitHub Action for yamllint'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

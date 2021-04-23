@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/jknutson/one-wire-temp-go"
 	"log"
 	"os"
@@ -27,8 +28,9 @@ Options:`)
 	flag.PrintDefaults()
 	println(`
 Environment Variables:
-  DD_API_KEY - DataDog API Key (required)
   DEVICES_DIR - directory path containing one wire device directories
+  HOSTNAME - hostname to interpolate in mq topic
+  MQ_BROKER - mq broker, ex: "tcp://localhost:1833"
   POLL_INTERVAL - interval (in seconds) at which to poll for temperature
 `)
 	println(`For more information, see https://github.com/jknutson/one-wire-temp-go`)
@@ -63,13 +65,28 @@ func main() {
 	initFlags()
 	setupCloseHandler()
 
+	// mqtt setup
+	mqHostname, ok := os.LookupEnv("HOSTNAME")
+	if !ok {
+		mqHostname = "raspberrypi" // default if HOSTNAME env var is not set
+	}
+	mqBroker, ok := os.LookupEnv("MQ_BROKER")
+	if !ok {
+		mqBroker = "tcp://192.168.2.6:1883"
+	}
+	mqOpts := MQTT.NewClientOptions().AddBroker(mqBroker)
+	mqOpts.SetClientID(mqHostname)
+	mqTopicBase := fmt.Sprintf("raspberrypi/%s", mqHostname)
+
 	if version {
 		log.Println(buildVersion)
 		return
 	}
 
-	datadogAPIKey := os.Getenv("DD_API_KEY")
-	datadogAPIUrl := fmt.Sprintf("https://api.datadoghq.com/api/v1/series?api_key=%s", datadogAPIKey)
+	c := MQTT.NewClient(mqOpts)
+	if token := c.Connect(); token.Wait() && token.Error() != nil {
+		panic(token.Error())
+	}
 
 	devicesDir := "/sys/devices/w1_bus_master1/"
 	if os.Getenv("DEVICES_DIR") != "" {
@@ -93,19 +110,23 @@ func main() {
 		for _, device := range devices {
 			deviceFile := path.Join(devicesDir, device, "w1_slave")
 			temperatureCelcius, err := onewire.ReadDevice(deviceFile)
-			check(err)
-			if verbose {
-				log.Printf("device: %s, temperature (celcius): %f", device, temperatureCelcius)
+			if err != nil {
+				// TODO: more robust "error" handling when file read is blank
+				if verbose {
+					log.Printf("ReadDevice error: %s\n", err)
+				}
+				continue
 			}
 
-			metricPayload, err := onewire.BuildMetric(device, temperatureCelcius)
-			check(err)
+			temperatureFahrenheit := fmt.Sprintf("%f", (temperatureCelcius*1.8)+32)
+      mqTopic := fmt.Sprintf("%s-%s/temperature", mqTopicBase, device)
 			if verbose {
-				log.Printf("payload: %s", metricPayload)
+				log.Printf("%s %s", mqTopic, temperatureFahrenheit)
 			}
-			err = onewire.PostMetric(datadogAPIUrl, metricPayload)
-			if err != nil {
-				log.Printf("error posting metric: %v", err)
+			token := c.Publish(mqTopic, 0, false, temperatureFahrenheit)
+			token.Wait()
+			if token.Error() != nil {
+				log.Printf("mq publish error: %s\n", token.Error())
 			}
 		}
 		if count != -1 {
