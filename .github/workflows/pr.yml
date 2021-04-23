@@ -29,8 +29,3 @@ jobs:
         run: 'make build-linux'
       - name: 'test'
         run: 'go test'
-      # - name: 'publish artifact'
-      #   uses: 'actions/upload-artifact@v2'
-      #   with:
-      #     name: 'binaries'
-      #     path: 'one-wire-temp*'
