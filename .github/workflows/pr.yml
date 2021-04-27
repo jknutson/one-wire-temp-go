@@ -29,3 +29,14 @@ jobs:
         run: 'make build-linux'
       - name: 'test'
         run: 'go test'
+  pi:
+    runs-on: 'raspberry-pi'
+    steps:
+      - name: 'basic info'
+        run: |
+          uptime
+          hostname
+          ip addr
+          pwd
+          ls -la
+          git status
