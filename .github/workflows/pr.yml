@@ -40,4 +40,4 @@ jobs:
           ip addr
           pwd
           ls -la
-          git status
+          whoami
