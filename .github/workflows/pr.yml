@@ -30,8 +30,18 @@ jobs:
       - name: 'test'
         run: 'go test'
 
-  pi:
+  pi-goss:
     runs-on: 'raspberrypi'
+    steps:
+      - name: 'checkout'
+        uses: 'actions/checkout@v2'
+      - uses: './.github/actions/goss'
+        with:
+          args: '--help'
+
+  pi-misc:
+    runs-on: 'raspberrypi'
+    if: false
     steps:
       - name: 'basic info'
         run: |

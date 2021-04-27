@@ -1,0 +1,6 @@
+---
+name: 'goss-action'
+description: 'GitHub Action for goss'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
