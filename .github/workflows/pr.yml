@@ -67,6 +67,7 @@ jobs:
         with:
           name: 'one-wire-temp_raspi'
       - run: 'chmod +x ./one-wire-temp_raspi'
+      - run: 'DEVICES_DIR=./test/devices ./one-wire-temp_raspi -verbose -count 1'
       - uses: './.github/actions/goss'
         with:
           args: '-g goss.pi.yaml validate'
