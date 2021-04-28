@@ -1,0 +1,14 @@
+---
+command:
+  one-wire-temp_version:
+    exec: './one-wire-temp_darwin -version'
+    exit-status: 0
+    stderr:
+      - '0.1.0'  # TODO: pull from var?
+  one-wire-temp_devices:
+    exec: |
+      ./one-wire-temp_darwin -verbose -count 1 -devicesDir './test/devices'
+    exit-status: 0
+    stderr:
+      - "/.*28-0516a42628ff/temperature 76.886600/"
+      - "/.*28-0516a4405eff/temperature 78.236600/"
