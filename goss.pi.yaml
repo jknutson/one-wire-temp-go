@@ -1,7 +1,5 @@
 ---
-# yamllint disable
 command:
-  {{if eq .Env.OS "raspbian"}}
   one-wire-temp_help:
     exec: './one-wire-temp_raspi -help'
     exit-status: 0
@@ -11,4 +9,3 @@ command:
     stdout:
       - '28-0516a42628ff/temperature 76.886600'
       - '28-0516a4405eff/temperature 78.236600'
-  {{end}}

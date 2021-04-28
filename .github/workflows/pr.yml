@@ -67,6 +67,8 @@ jobs:
         with:
           name: 'one-wire-temp_raspi'
       - uses: './.github/actions/goss'
+        with:
+          args: '-g goss.pi.yaml validate'
 
   pi-misc:
     runs-on: 'raspberrypi'
