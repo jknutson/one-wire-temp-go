@@ -1,10 +1,10 @@
 ---
 command:
   one-wire-temp_help:
-    exec: './one-wire-temp_darwin -help'
+    exec: './one-wire-temp_raspi -help'
     exit-status: 0
   one-wire-temp_devices:
-    exec: 'DEVICES_DIR=./test/devices ./one-wire-temp_darwin -verbose -count 1'
+    exec: 'DEVICES_DIR=./test/devices ./one-wire-temp_raspi -verbose -count 1'
     exit-status: 0
     stdout:
       - '28-0516a42628ff/temperature 76.886600'
