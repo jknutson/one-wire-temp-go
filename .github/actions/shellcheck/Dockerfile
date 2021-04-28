@@ -6,7 +6,8 @@ COPY shellcheck.json /shellcheck.json
 # hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends shellcheck && \
       apt-get clean && \
-      rm -rf /var/lib/apt/lists/*
+      rm -rf /var/lib/apt/lists/* && \
+      chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 
