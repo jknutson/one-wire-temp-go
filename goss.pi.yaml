@@ -9,4 +9,3 @@ command:
     stdout:
       - '28-0516a42628ff/temperature 76.886600'
       - '28-0516a4405eff/temperature 78.236600'
-
