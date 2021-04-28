@@ -66,7 +66,9 @@ jobs:
         with:
           name: 'one-wire-temp_raspi'
           path: './one-wire-temp_raspi'
-      - run: 'chmod +x ./one-wire-temp_raspi && ls -l'
+      - run: |
+          chmod +x ./one-wire-temp_raspi && \
+          ./one-wire-temp_raspi
       - uses: './.github/actions/goss'
         with:
           args: '-g goss.pi.yaml validate -f documentation'
