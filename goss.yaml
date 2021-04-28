@@ -1,0 +1,5 @@
+---
+command:
+  one-wire-temp:
+    exec: './one-wire-temp_linux'
+    exit-status: 0

@@ -13,4 +13,4 @@ RUN apt-get update && apt-get install -y curl && \
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-CMD ["."]
+CMD ["validate"]
