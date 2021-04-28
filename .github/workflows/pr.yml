@@ -65,9 +65,6 @@ jobs:
       - uses: 'actions/download-artifact@master'
         with:
           name: 'one-wire-temp_raspi'
-      - run: |
-          chmod +x ./one-wire-temp_raspi && \
-          ./one-wire-temp_raspi
       - uses: './.github/actions/goss'
         with:
           args: '-g goss.pi.yaml validate -f documentation'

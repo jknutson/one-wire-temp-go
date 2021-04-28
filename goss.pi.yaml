@@ -1,5 +1,5 @@
 ---
 command:
   one-wire-temp_raspi:
-    exec: './one-wire-temp_raspi'
+    exec: './one-wire-temp_raspi -h'
     exit-status: 0
