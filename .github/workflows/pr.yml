@@ -24,7 +24,7 @@ jobs:
       - uses: './.github/actions/hadolint'
         with:
           # TODO: lint all dockerfiles
-          args: 'hadolint ./.github/actions/hadolint/Dockerfile'
+          # args: 'hadolint ./.github/actions/hadolint/Dockerfile'
 
   build:
     runs-on: 'ubuntu-latest'
