@@ -1,0 +1,17 @@
+{
+    "problemMatcher": [
+        {
+            "owner": "shellcheck",
+            "pattern": [
+                {
+                    "regexp": "^(.+)\\:(\\d+)\\:(\\d+)\\:\\s+\\S+\\s+(.+)\\s+\\[(.+)\\]$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "message": 4,
+                    "code": 5
+                }
+            ]
+        }
+    ]
+}

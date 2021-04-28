@@ -1,0 +1,6 @@
+---
+name: 'shellcheck-action'
+description: 'GitHub Action for shellcheck'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
