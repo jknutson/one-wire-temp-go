@@ -49,12 +49,20 @@ jobs:
         run: 'make build-raspi'
       - name: 'test'
         run: 'go test'
+      - uses: 'actions/upload-artifact@master'
+        with:
+          name: 'one-wire-temp_raspi'
+          path: './one-wire-temp_raspi'
 
   goss-raspberrypi:
     runs-on: 'raspberrypi'
     steps:
       - name: 'checkout'
         uses: 'actions/checkout@v2'
+      - uses: 'actions/download-artifact@master'
+        with:
+          name: 'one-wire-temp_raspi'
+          path: './one-wire-temp_raspi'
       - uses: './.github/actions/goss'
         with:
           args: '-g goss.pi.yaml validate'
