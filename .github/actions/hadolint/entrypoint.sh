@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -6,4 +6,5 @@ set -e
 cp /hadolint.json /github/workflow/hadolint.json
 echo "::add-matcher::${RUNNER_TEMP}/_github_workflow/hadolint.json"
 
-sh -c "/bin/hadolint $*"
+shopt -s globstar
+/bin/bash -c "/bin/hadolint $*"
