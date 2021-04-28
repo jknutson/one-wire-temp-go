@@ -57,7 +57,7 @@ jobs:
         uses: 'actions/checkout@v2'
       - uses: './.github/actions/goss'
         with:
-          args: 'validate -g goss.pi.yaml'
+          args: '-g goss.pi.yaml validate'
 
   pi-misc:
     runs-on: 'raspberrypi'
