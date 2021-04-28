@@ -4,7 +4,7 @@ COPY entrypoint.sh /entrypoint.sh
 COPY goss.json /goss.json
 
 # hadolint ignore=DL3008
-RUN apt-get update && apt-get install -y --no-install-recommends curl && \
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates && \
       apt-get clean && \
       rm -rf /var/lib/apt/lists/* && \
       curl -L https://github.com/aelsabbahy/goss/releases/latest/download/goss-linux-arm -o /usr/local/bin/goss && \

@@ -6,3 +6,7 @@ command:
   one-wire-temp_devices:
     exec: 'DEVICES_DIR=./test/devices ./one-wire-temp_darwin -verbose -count 1'
     exit-status: 0
+    stdout:
+      - '28-0516a42628ff/temperature 76.886600'
+      - '28-0516a4405eff/temperature 78.236600'
+
