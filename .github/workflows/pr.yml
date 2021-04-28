@@ -36,8 +36,6 @@ jobs:
       - name: 'checkout'
         uses: 'actions/checkout@v2'
       - uses: './.github/actions/goss'
-        with:
-          args: '--help'
 
   pi-misc:
     runs-on: 'raspberrypi'
