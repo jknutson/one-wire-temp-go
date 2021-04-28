@@ -21,3 +21,6 @@ rules:
       - 'false'
       - 'true'
     level: 'error'
+
+ignore: |
+  goss.yaml  # this file has go template code
