@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	buildVersion, devicesDir string
+	BuildVersion, devicesDir string
 	count        int
 	verbose      bool
 	version      bool
@@ -95,7 +95,7 @@ func main() {
 	mqTopicBase := fmt.Sprintf("raspberrypi/%s", mqHostname)
 
 	if version {
-		log.Println(buildVersion)
+    log.Printf("version: %s\n", BuildVersion)
 		return
 	}
 
