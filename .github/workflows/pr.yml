@@ -26,7 +26,7 @@ jobs:
           # TODO: lint all dockerfiles
           # args: 'hadolint ./.github/actions/hadolint/Dockerfile'
 
-  build:
+  build-linux:
     runs-on: 'ubuntu-latest'
     steps:
       - name: 'install go'
@@ -40,12 +40,24 @@ jobs:
       - name: 'test'
         run: 'go test'
 
-  pi-goss:
+  build-raspberrypi:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'checkout'
+        uses: 'actions/checkout@v2'
+      - name: 'build'
+        run: 'make build-raspi'
+      - name: 'test'
+        run: 'go test'
+
+  goss-raspberrypi:
     runs-on: 'raspberrypi'
     steps:
       - name: 'checkout'
         uses: 'actions/checkout@v2'
       - uses: './.github/actions/goss'
+        with:
+          args: 'validate -g goss.pi.yaml'
 
   pi-misc:
     runs-on: 'raspberrypi'
