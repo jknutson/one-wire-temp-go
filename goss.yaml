@@ -1,6 +1,6 @@
 ---
 command:
-  {{if .Env.USER | regexMatch "pi:"}}
+  {{if eq .Env.OS "raspbian"}}
   one-wire-temp_help:
     exec: './one-wire-temp_raspi -help'
     exit-status: 0
