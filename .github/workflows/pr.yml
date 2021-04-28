@@ -30,7 +30,7 @@ jobs:
 
   build-linux:
     runs-on: 'ubuntu-latest'
-    if: false
+    if: false  # not doing much on linux here atm
     steps:
       - name: 'install go'
         uses: 'actions/setup-go@v2'
@@ -71,16 +71,3 @@ jobs:
       - uses: './.github/actions/goss'
         with:
           args: '-g goss.pi.yaml validate'
-
-  pi-misc:
-    runs-on: 'raspberrypi'
-    if: false
-    steps:
-      - name: 'basic info'
-        run: |
-          uptime
-          hostname
-          ip addr
-          pwd
-          ls -la
-          whoami
