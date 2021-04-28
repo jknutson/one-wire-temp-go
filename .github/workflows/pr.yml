@@ -16,8 +16,21 @@ jobs:
         uses: 'actions/checkout@v2'
       - uses: './.github/actions/yamllint'
 
-  build:
+  hadolint:
     runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'checkout'
+        uses: 'actions/checkout@v2'
+      - uses: './.github/actions/hadolint'
+        with:
+          args: |
+            ./.github/actions/hadolint/Dockerfile \
+            ./.github/actions/yamllint/Dockerfile \
+            ./.github/actions/goss/Dockerfile
+
+  build-linux:
+    runs-on: 'ubuntu-latest'
+    if: false  # not doing much on linux here atm
     steps:
       - name: 'install go'
         uses: 'actions/setup-go@v2'
@@ -29,3 +42,32 @@ jobs:
         run: 'make build-linux'
       - name: 'test'
         run: 'go test'
+
+  build-raspberrypi:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'checkout'
+        uses: 'actions/checkout@v2'
+      - name: 'build'
+        run: 'make build-raspi'
+      - name: 'test'
+        run: 'go test'
+      - uses: 'actions/upload-artifact@master'
+        with:
+          name: 'one-wire-temp_raspi'
+          path: './one-wire-temp_raspi'
+
+  goss-raspberrypi:
+    runs-on: 'raspberrypi'
+    needs: 'build-raspberrypi'
+    steps:
+      - name: 'checkout'
+        uses: 'actions/checkout@v2'
+      - uses: 'actions/download-artifact@master'
+        with:
+          name: 'one-wire-temp_raspi'
+      - run: 'chmod +x ./one-wire-temp_raspi'
+      - run: 'DEVICES_DIR=./test/devices ./one-wire-temp_raspi -verbose -count 1'
+      - uses: './.github/actions/goss'
+        with:
+          args: '-g goss.pi.yaml validate'

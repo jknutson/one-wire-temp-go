@@ -1,0 +1,6 @@
+---
+name: 'hadolint-action'
+description: 'GitHub Action for hadolint'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
