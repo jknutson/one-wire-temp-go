@@ -7,6 +7,8 @@ on:
   pull_request:
     branches:
       - '*'
+    paths:
+      - '!README.md'
 
 jobs:
   yamllint:
@@ -15,6 +17,18 @@ jobs:
       - name: 'checkout'
         uses: 'actions/checkout@v2'
       - uses: './.github/actions/yamllint'
+
+  shellcheck:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'checkout'
+        uses: 'actions/checkout@v2'
+      - uses: './.github/actions/shellcheck'
+        with:
+          args: |
+            ./.github/actions/hadolint/entrypoint.sh \
+            ./.github/actions/yamllint/entrypoint.sh \
+            ./.github/actions/goss/entrypoint.sh
 
   hadolint:
     runs-on: 'ubuntu-latest'
