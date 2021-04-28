@@ -1,12 +1,14 @@
 ---
 command:
-  one-wire-temp_help:
-    exec: './one-wire-temp_raspi -help'
+  one-wire-temp_version:
+    exec: './one-wire-temp_raspi -version'
     exit-status: 0
+    stderr:
+      - '0.1.0'  # TODO: pull from var?
   one-wire-temp_devices:
-    exec: 'DEVICES_DIR=./test/devices ./one-wire-temp_raspi -verbose -count 1'
+    exec: |
+      ./one-wire-temp_raspi -verbose -count 1 -devicesDir './test/devices'
     exit-status: 0
-    # TODO: get this working, i suspect DEVICES_DIR isnt passed
-    # stdout:
-    #   - '/.*28-0516a42628ff/temperature 76.886600$/'
-    #   - '/.*28-0516a4405eff/temperature 78.236600$/'
+    stderr:
+      - '/.*28-0516a42628ff/temperature 76.886600/'
+      - '/.*28-0516a4405eff/temperature 78.236600/'
