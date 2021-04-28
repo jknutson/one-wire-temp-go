@@ -7,5 +7,5 @@ command:
     exec: 'DEVICES_DIR=./test/devices ./one-wire-temp_raspi -verbose -count 1'
     exit-status: 0
     stdout:
-      - '28-0516a42628ff/temperature 76.886600'
-      - '28-0516a4405eff/temperature 78.236600'
+      - /^.*28-0516a42628ff/temperature 76.886600$/
+      - /^.*28-0516a4405eff/temperature 78.236600$/
