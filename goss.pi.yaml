@@ -1,5 +1,8 @@
 ---
 command:
-  one-wire-temp_raspi:
-    exec: './one-wire-temp_raspi -h'
+  one-wire-temp_help:
+    exec: './one-wire-temp_darwin -help'
+    exit-status: 0
+  one-wire-temp_devices:
+    exec: 'DEVICES_DIR=./test/devices ./one-wire-temp_darwin -verbose -count 1'
     exit-status: 0
