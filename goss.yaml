@@ -1,4 +1,5 @@
 ---
+# yamllint disable
 command:
   {{if eq .Env.OS "raspbian"}}
   one-wire-temp_help:
