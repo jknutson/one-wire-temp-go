@@ -55,6 +55,7 @@ jobs:
 
   goss-raspberrypi:
     runs-on: 'raspberrypi'
+    needs: 'build-raspberrypi'
     steps:
       - name: 'checkout'
         uses: 'actions/checkout@v2'
