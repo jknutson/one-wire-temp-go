@@ -22,9 +22,8 @@ jobs:
       - name: 'checkout'
         uses: 'actions/checkout@v2'
       - uses: './.github/actions/hadolint'
-        # with:
-          # TODO: lint all dockerfiles
-          # args: 'hadolint ./.github/actions/hadolint/Dockerfile'
+        with:
+          args: './.github/actions/hadolint/Dockerfile'
 
   build-linux:
     runs-on: 'ubuntu-latest'
