@@ -15,19 +15,26 @@ import (
 )
 
 var (
-	buildVersion string
+	buildVersion, devicesDir string
 	count        int
 	verbose      bool
 	version      bool
 )
 
+const (
+  devicesDirDefault = "/sys/devices/w1_bus_master1/"
+  devicesDirUsage = "path to one-wire devices"
+  countDefault = -1
+  countUsage = "count of times to poll/report, '-1' means continous"
+)
+
 func usage() {
 	println(`Usage: one-wire-temp [options]
-Read temperature from one-wire sensores and POST to DataDog
+Read temperature from one-wire sensores and emit to MQTT
 Options:`)
 	flag.PrintDefaults()
 	println(`
-Environment Variables:
+Environment Variables (will override command line flags):
   DEVICES_DIR - directory path containing one wire device directories
   HOSTNAME - hostname to interpolate in mq topic
   MQ_BROKER - mq broker, ex: "tcp://localhost:1833"
@@ -37,12 +44,20 @@ Environment Variables:
 }
 
 func initFlags() {
+  flag.StringVar(&devicesDir, "devicesDir", devicesDirDefault, devicesDirUsage)
 	flag.BoolVar(&verbose, "verbose", false, "verbose output")
 	flag.BoolVar(&version, "version", false, "show version")
-	flag.IntVar(&count, "count", -1, "count of times to poll/report, '-1' means continous")
+	flag.IntVar(&count, "count", countDefault, countUsage)
 
 	flag.Usage = usage
 	flag.Parse()
+
+	if os.Getenv("DEVICES_DIR") != "" {
+		devicesDir = os.Getenv("DEVICES_DIR")
+    if verbose {
+      log.Printf("setting devicesDir from ENV: %s\n", devicesDir)
+    }
+	}
 }
 
 func check(e error) {
@@ -66,6 +81,7 @@ func main() {
 	setupCloseHandler()
 
 	// mqtt setup
+  // TODO: add these as flags too
 	mqHostname, ok := os.LookupEnv("HOSTNAME")
 	if !ok {
 		mqHostname = "raspberrypi" // default if HOSTNAME env var is not set
@@ -88,10 +104,6 @@ func main() {
 		panic(token.Error())
 	}
 
-	devicesDir := "/sys/devices/w1_bus_master1/"
-	if os.Getenv("DEVICES_DIR") != "" {
-		devicesDir = os.Getenv("DEVICES_DIR")
-	}
 	devices, err := onewire.GetDevices(devicesDir)
 	check(err)
 
