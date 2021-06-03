@@ -16,16 +16,16 @@ import (
 
 var (
 	BuildVersion, devicesDir string
-	count        int
-	verbose      bool
-	version      bool
+	count                    int
+	verbose                  bool
+	version                  bool
 )
 
 const (
-  devicesDirDefault = "/sys/devices/w1_bus_master1/"
-  devicesDirUsage = "path to one-wire devices"
-  countDefault = -1
-  countUsage = "count of times to poll/report, '-1' means continous"
+	devicesDirDefault = "/sys/devices/w1_bus_master1/"
+	devicesDirUsage   = "path to one-wire devices"
+	countDefault      = -1
+	countUsage        = "count of times to poll/report, '-1' means continous"
 )
 
 func usage() {
@@ -44,7 +44,7 @@ Environment Variables (will override command line flags):
 }
 
 func initFlags() {
-  flag.StringVar(&devicesDir, "devicesDir", devicesDirDefault, devicesDirUsage)
+	flag.StringVar(&devicesDir, "devicesDir", devicesDirDefault, devicesDirUsage)
 	flag.BoolVar(&verbose, "verbose", false, "verbose output")
 	flag.BoolVar(&version, "version", false, "show version")
 	flag.IntVar(&count, "count", countDefault, countUsage)
@@ -54,9 +54,9 @@ func initFlags() {
 
 	if os.Getenv("DEVICES_DIR") != "" {
 		devicesDir = os.Getenv("DEVICES_DIR")
-    if verbose {
-      log.Printf("setting devicesDir from ENV: %s\n", devicesDir)
-    }
+		if verbose {
+			log.Printf("setting devicesDir from ENV: %s\n", devicesDir)
+		}
 	}
 }
 
@@ -81,7 +81,7 @@ func main() {
 	setupCloseHandler()
 
 	// mqtt setup
-  // TODO: add these as flags too
+	// TODO: add these as flags too
 	mqHostname, ok := os.LookupEnv("HOSTNAME")
 	if !ok {
 		mqHostname = "raspberrypi" // default if HOSTNAME env var is not set
@@ -92,10 +92,10 @@ func main() {
 	}
 	mqOpts := MQTT.NewClientOptions().AddBroker(mqBroker)
 	mqOpts.SetClientID(mqHostname)
-	mqTopicBase := fmt.Sprintf("raspberrypi/%s", mqHostname)
+	mqTopicBase := fmt.Sprintf("iot_sensor/%s", mqHostname)
 
 	if version {
-    log.Printf("version: %s\n", BuildVersion)
+		log.Printf("version: %s\n", BuildVersion)
 		return
 	}
 
@@ -131,7 +131,7 @@ func main() {
 			}
 
 			temperatureFahrenheit := fmt.Sprintf("%f", (temperatureCelcius*1.8)+32)
-      mqTopic := fmt.Sprintf("%s-%s/temperature", mqTopicBase, device)
+			mqTopic := fmt.Sprintf("%s-%s/temperature", mqTopicBase, device)
 			if verbose {
 				log.Printf("%s %s", mqTopic, temperatureFahrenheit)
 			}
